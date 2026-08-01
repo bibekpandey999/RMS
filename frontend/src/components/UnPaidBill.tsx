@@ -625,15 +625,16 @@ export default function UnpaidBill({ lang = 'en' as 'en' | 'ne' }: { lang?: 'en'
         </div>
         <button
           onClick={fetchBills}
-          className="p-2.5 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl text-gray-500 hover:text-gray-900 transition-colors shadow-sm"
+          disabled={loading}
+          className="p-2.5 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl text-gray-500 hover:text-gray-900 transition-colors shadow-sm cursor-pointer disabled:opacity-50"
           title="Refresh"
         >
-          <RefreshCw className="h-4 w-4" />
+          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
       {error && (
-        <div className="mb-4 flex items-start gap-2 rounded-md border border-red-300/50 bg-red-50 px-3 py-2.5 text-xs text-red-700 shrink-0">
+        <div className="mb-4 flex items-start gap-2 rounded-md border border-red-300/50 bg-red-50 px-3 py-2.5 text-xs text-red-700 shrink-0 shadow-xs">
           <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
           <span>{error}</span>
         </div>
@@ -653,7 +654,7 @@ export default function UnpaidBill({ lang = 'en' as 'en' | 'ne' }: { lang?: 'en'
           </div>
 
           <div className="flex-1 overflow-y-auto pr-1">
-            {loading ? (
+            {loading && allBills.length === 0 ? (
               <div className="flex items-center justify-center py-16">
                 <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
               </div>
@@ -797,7 +798,7 @@ export default function UnpaidBill({ lang = 'en' as 'en' | 'ne' }: { lang?: 'en'
                   </div>
                 </div>
 
-                {/* Payment method — choosing one marks the whole group Paid */}
+                {/* Payment method selection */}
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">
                     {lang === 'en' ? 'Settle With' : 'भुक्तानी विधि'}
@@ -831,6 +832,7 @@ export default function UnpaidBill({ lang = 'en' as 'en' | 'ne' }: { lang?: 'en'
               {/* Sticky action footer */}
               <div className="border-t border-gray-100 p-4 shrink-0 bg-white">
                 <button
+                  type="button"
                   onClick={handleMarkPaid}
                   disabled={!canMarkPaid}
                   className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-bold py-3 transition-colors shadow-sm cursor-pointer"

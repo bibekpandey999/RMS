@@ -180,7 +180,7 @@ const { currentRestaurantId, currentRestaurantIdAlt } = useMemo(() => {
 
   const totalOrdersCount = ordersForSelectedDate.length;
 
-  const handlePrint = () => {
+const handlePrint = () => {
     const printContent = document.getElementById("bill-print-area");
     if (!printContent) return;
 
@@ -195,23 +195,26 @@ const { currentRestaurantId, currentRestaurantIdAlt } = useMemo(() => {
             @page { size: 80mm auto; margin: 0; }
             * { box-sizing: border-box; }
             body {
-              width: 80mm;
-              margin: 0;
-              padding: 8px;
-              font-family: 'Courier New', monospace;
-              font-size: 12px;
-              color: #000;
+              width: 72mm;
+              margin: 0 auto;
+              padding: 4mm 2mm;
+              font-family: 'Courier New', Courier, monospace;
+              font-size: 11px;
+              line-height: 1.2;
+              font-weight: 900;
+              color: #000000;
+              background: #ffffff;
             }
             .center { text-align: center; }
-            .bold { font-weight: bold; }
-            .divider { border-top: 1px dashed #000; margin: 6px 0; }
-            table { width: 100%; border-collapse: collapse; font-size: 11px; }
+            .bold { font-weight: 900; }
+            .divider { border-top: 2px dashed #000; margin: 6px 0; }
+            table { width: 100%; border-collapse: collapse; font-size: 11px; font-weight: 900; }
             th, td { text-align: left; padding: 2px 0; }
             th:last-child, td:last-child { text-align: right; }
             .item-row td { padding: 3px 0; }
-            .total-row { font-weight: bold; font-size: 13px; }
-            .header-title { font-size: 16px; font-weight: bold; }
-            .small { font-size: 10px; }
+            .total-row { font-weight: 900; font-size: 12px; }
+            .header-title { font-size: 14px; font-weight: 900; text-transform: uppercase; }
+            .small { font-size: 10px; font-weight: 900; }
           </style>
         </head>
         <body>
@@ -226,7 +229,6 @@ const { currentRestaurantId, currentRestaurantIdAlt } = useMemo(() => {
       printWindow.close();
     }, 250);
   };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center p-10">

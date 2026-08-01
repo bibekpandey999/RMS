@@ -126,101 +126,120 @@ function InvoiceModal({
         <div className="flex justify-between items-center border-b border-gray-100 pb-3">
           <span className="font-bold text-gray-900 flex items-center gap-1.5 text-sm">
             <Receipt className="h-5 w-5 text-teal-600" />
-            {lang === 'en' ? 'Invoice' : 'बिजक'}
+            {lang === 'en' ? '80mm Thermal Invoice' : 'बिजक'}
           </span>
           <button onClick={onClose} className="p-1 text-gray-400 hover:text-gray-950 cursor-pointer">
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div
-          id="printable-bill"
-          className="p-5 border border-gray-300 rounded-xl bg-[#fafafa] font-sans text-xs text-gray-800 space-y-4 shadow-inner max-h-[420px] overflow-y-auto"
-        >
-          <div className="text-center space-y-1 pb-3 border-b border-gray-300 border-dashed">
-            <h3 className="text-base font-bold text-gray-950 uppercase tracking-tight">
-              {bill.restaurantName}
-            </h3>
-            <p className="text-[10px] text-gray-500">{bill.location}</p>
-            <p className="font-semibold text-[10px]">PAN / VAT No: {bill.panOrVat}</p>
-            <h4 className="text-xs font-extrabold text-gray-950 uppercase border-y border-gray-200 py-1 tracking-wider mt-2">
-              {lang === 'en' ? 'Invoice' : 'बिजक'}
-            </h4>
-          </div>
+        {/* 80mm Thermal Receipt Preview Container */}
+        <div className="flex justify-center bg-gray-200 p-4 rounded-xl overflow-y-auto max-h-[420px]">
+          <div
+            id="printable-bill"
+            style={{
+              fontFamily: "'Courier New', Courier, monospace",
+              width: '72mm',
+              margin: '0 auto',
+              padding: '4mm 2mm',
+              color: '#000000',
+              backgroundColor: '#ffffff',
+              fontWeight: 900,
+            }}
+            className="space-y-3 shadow-md text-xs"
+          >
+            <div className="text-center space-y-0.5 pb-2 border-b-2 border-black border-dashed">
+              <h3 className="text-sm font-black uppercase tracking-tight text-black">
+                {bill.restaurantName}
+              </h3>
+              <p className="text-[10px] font-bold text-black">{bill.location}</p>
+              <p className="font-black text-[10px]">PAN / VAT No: {bill.panOrVat}</p>
+              <h4 className="text-xs font-black uppercase border-y border-black py-1 tracking-wider mt-1 text-black">
+                {lang === 'en' ? 'INVOICE / BILL' : 'बिजक'}
+              </h4>
+            </div>
 
-          <div className="grid grid-cols-2 gap-y-1 border-b border-gray-200 pb-2 leading-relaxed">
-            <div>
-              Invoice No: <span className="font-mono font-bold text-gray-950">{bill.invoiceNo}</span>
-            </div>
-            <div className="text-right">
-              Date: <span className="font-mono">{new Date(bill.date || bill.createdAt || '').toLocaleString()}</span>
-            </div>
-            <div className="col-span-2">
-              Bill To: <span className="font-bold text-gray-900">{bill.billTo}</span>
-              {bill.tableNumber && (
-                <span className="text-[10px] text-gray-500 font-mono ml-1">(Table {bill.tableNumber})</span>
-              )}
-            </div>
-            <div className="col-span-2">
-              Payment Method: <span className="font-semibold text-gray-950">{bill.paymentMethod}</span>
-            </div>
-          </div>
-
-          <table className="w-full text-[11px] leading-relaxed">
-            <thead>
-              <tr className="border-b border-gray-300 font-bold text-gray-950 text-left">
-                <th className="pb-1">Item</th>
-                <th className="pb-1 text-center">Qty</th>
-                <th className="pb-1 text-right">Rate</th>
-                <th className="pb-1 text-right">Total</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 border-b border-gray-300">
-              {billItems.map((item, idx) => (
-                <tr key={idx}>
-                  <td className="py-1 font-bold text-gray-950">{item.itemName}</td>
-                  <td className="py-1 text-center font-mono">{item.quantity}</td>
-                  <td className="py-1 text-right font-mono">NPR {money(item.rate)}</td>
-                  <td className="py-1 text-right font-mono">NPR {money(item.total)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <div className="space-y-1 text-[11px] text-gray-700 max-w-[220px] ml-auto">
-            <div className="flex justify-between">
-              <span>Subtotal:</span>
-              <span className="font-mono">NPR {money(bill.subtotal)}</span>
-            </div>
-            {hasDiscount && (
-              <div className="flex justify-between text-red-600">
-                <span>Discount ({discountPercent}%):</span>
-                <span className="font-mono">-NPR {money(bill.discount)}</span>
-              </div>
-            )}
-            <div className="flex justify-between font-medium">
-              <span>Taxable Amount:</span>
-              <span className="font-mono">NPR {money(bill.taxableAmount)}</span>
-            </div>
-            {hasVat && (
+            <div className="space-y-1 border-b-2 border-black pb-2 text-[11px] leading-tight font-black">
               <div className="flex justify-between">
-                <span>VAT ({vatRate.toFixed(1)}%):</span>
-                <span className="font-mono">NPR {money(bill.vatCollected)}</span>
+                <span>Invoice No:</span>
+                <span className="font-mono">{bill.invoiceNo}</span>
               </div>
-            )}
-            <div className="flex justify-between border-t border-gray-400 pt-1 text-xs text-gray-950 font-bold">
-              <span>GRAND TOTAL:</span>
-              <span className="font-mono text-teal-700">NPR {money(bill.grandTotal)}</span>
+              <div className="flex justify-between">
+                <span>Date:</span>
+                <span className="font-mono">{new Date(bill.date || bill.createdAt || '').toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Bill To:</span>
+                <span>{bill.billTo}</span>
+              </div>
+              {bill.tableNumber && (
+                <div className="flex justify-between">
+                  <span>Table:</span>
+                  <span>{bill.tableNumber}</span>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <span>Payment:</span>
+                <span>{bill.paymentMethod}</span>
+              </div>
             </div>
-          </div>
 
-          <div className="pt-8 flex justify-between items-end border-t border-dashed border-gray-300">
-            <div className="text-center font-bold text-[9px] text-gray-400 border-t border-gray-300 pt-1 w-24">
-              Customer Sign
+            <table className="w-full text-[11px] leading-tight font-black">
+              <thead>
+                <tr className="border-b border-black text-left">
+                  <th className="pb-1">Item</th>
+                  <th className="pb-1 text-center">Qty</th>
+                  <th className="pb-1 text-right">Rate</th>
+                  <th className="pb-1 text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-dashed divide-black border-b-2 border-black">
+                {billItems.map((item, idx) => (
+                  <tr key={idx}>
+                    <td className="py-1 font-black">{item.itemName}</td>
+                    <td className="py-1 text-center font-mono">{item.quantity}</td>
+                    <td className="py-1 text-right font-mono">{money(item.rate)}</td>
+                    <td className="py-1 text-right font-mono">{money(item.total)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <div className="space-y-1 text-[11px] font-black">
+              <div className="flex justify-between">
+                <span>Subtotal:</span>
+                <span className="font-mono">NPR {money(bill.subtotal)}</span>
+              </div>
+              {hasDiscount && (
+                <div className="flex justify-between">
+                  <span>Discount ({discountPercent}%):</span>
+                  <span className="font-mono">-NPR {money(bill.discount)}</span>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <span>Taxable Amount:</span>
+                <span className="font-mono">NPR {money(bill.taxableAmount)}</span>
+              </div>
+              {hasVat && (
+                <div className="flex justify-between">
+                  <span>VAT ({vatRate.toFixed(1)}%):</span>
+                  <span className="font-mono">NPR {money(bill.vatCollected)}</span>
+                </div>
+              )}
+              <div className="flex justify-between border-t-2 border-black pt-1 text-xs font-black">
+                <span>GRAND TOTAL:</span>
+                <span className="font-mono">NPR {money(bill.grandTotal)}</span>
+              </div>
             </div>
-            <div className="text-center italic text-[10px] text-gray-500">Thank you, visit again!</div>
-            <div className="text-center font-bold text-[9px] text-gray-400 border-t border-gray-300 pt-1 w-24">
-              Authorized Sign
+
+            <div className="pt-6 flex justify-between items-end border-t border-dashed border-black text-[9px] font-black">
+              <div className="text-center border-t border-black pt-1 w-20">
+                Customer Sign
+              </div>
+              <div className="text-center">Thank you, visit again!</div>
+              <div className="text-center border-t border-black pt-1 w-20">
+                Auth. Sign
+              </div>
             </div>
           </div>
         </div>
@@ -239,7 +258,7 @@ function InvoiceModal({
             className="px-6 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer"
           >
             <Printer className="h-4 w-4" />
-            Print Invoice
+            Print 80mm Invoice
           </button>
         </div>
       </div>

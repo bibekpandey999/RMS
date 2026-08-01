@@ -929,148 +929,146 @@ export default function App() {
       </div>
 
       {/* APP-WIDE GLOBAL INVOICE OVERLAY POPUP */}
-      {invoiceToView && (
-        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in" id="global-invoice-modal">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-6 shadow-2xl border border-gray-100">
-            <div className="flex justify-between items-center border-b border-gray-100 pb-3">
-              <span className="font-bold text-gray-900 flex items-center gap-1.5 text-sm">
-                <FileText className="h-5 w-5 text-teal-600" />
-                {lang === 'en' ? 'Tax Invoice Audit View' : 'कर बिजक विवरण'}
-              </span>
-              <button onClick={() => setInvoiceToView(null)} className="p-1 text-gray-400 hover:text-gray-950 cursor-pointer">
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+ {invoiceToView && (
+      <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in" id="global-invoice-modal">
+        <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-6 shadow-2xl border border-gray-100">
+          <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+            <span className="font-bold text-gray-900 flex items-center gap-1.5 text-sm">
+              <FileText className="h-5 w-5 text-teal-600" />
+              {lang === 'en' ? 'Tax Invoice Audit View' : 'कर बिजक विवरण'}
+            </span>
+            <button onClick={() => setInvoiceToView(null)} className="p-1 text-gray-400 hover:text-gray-950 cursor-pointer">
+              <X className="h-5 w-5" />
+            </button>
+          </div>
 
-            {/* Invoice Printable layout block */}
-            <div className="p-5 border border-gray-300 rounded-xl bg-[#fafafa] font-sans text-xs text-gray-800 space-y-3 shadow-inner max-h-[400px] overflow-y-auto" id="global-printable-receipt">
-              <div className="text-center space-y-0.5 pb-2 border-b border-gray-300 border-dashed">
-                <h3 className="text-sm font-extrabold text-gray-950 uppercase tracking-tight">{invoiceToView.pharmacyName || t.title}</h3>
-                <p className="text-[10px] text-gray-500">{invoiceToView.location || t.location}</p>
-                <p className="font-semibold text-[10px]">PAN / VAT No: {invoiceToView.panOrVat || 'N/A'}</p>
-                <h4 className="text-[11px] font-extrabold text-gray-950 uppercase border-y border-gray-200 py-1 tracking-wider mt-1.5">{t.invoice}</h4>
-                {invoiceToView.paymentStatus === 'Refunded' && (
-                  <div className="my-1.5 py-1 bg-red-100 text-red-800 border-2 border-red-300 font-bold rounded uppercase tracking-widest text-[11px]" id="invoice-void-banner">
-                    VOID / REFUNDED INVOICE
-                  </div>
-                )}
-              </div>
-
-              {/* metadata rows */}
-              <div className="text-[10px] space-y-0.5 border-b border-gray-200 pb-2 leading-tight">
-                <div className="flex justify-between">
-                  <span>Invoice No: <span className="font-mono font-bold text-gray-950">{invoiceToView.id}</span></span>
-                  <span>Date: <span className="font-mono">{new Date(invoiceToView.createdAt).toLocaleString()}</span></span>
-                </div>
-
-                {invoiceToView.patientId && (
-                  <div>
-                    {t.receiptTo}: <span className="font-bold text-gray-900">
-                      {patients.find(p => (p.id || p._id) === invoiceToView.patientId)?.fullName || (patients.find(p => (p.id || p._id) === invoiceToView.patientId) as any)?.name || 'N/A'}
-                    </span>
-                    <span className="text-[10px] text-gray-500 font-mono ml-1">({invoiceToView.patientId})</span>
-                  </div>
-                )}
-
-                <div>Payment Method: <span className="font-semibold text-gray-950">{invoiceToView.paymentMethod}</span></div>
-              </div>
-
-              {/* items */}
-              <table className="w-full text-[10px] leading-tight">
-                <thead>
-                  <tr className="border-b border-gray-300 font-bold text-gray-950 text-left">
-                    <th className="pb-1">Item</th>
-                    <th className="pb-1 text-center">Qty</th>
-                    <th className="pb-1 text-right">Rate</th>
-                    <th className="pb-1 text-right">Total</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 border-b border-gray-300">
-                  {invoiceToView.items.map((item, idx) => (
-                    <tr key={idx}>
-                      <td className="py-1">
-                        <p className="font-bold text-gray-950">{item.name}</p>
-                        <p className="text-[9px] text-gray-500">{item.dosage}</p>
-                      </td>
-                      <td className="py-1 text-center font-mono">{item.quantity}</td>
-                      <td className="py-1 text-right font-mono">NPR {item.unitPrice.toFixed(2)}</td>
-                      <td className="py-1 text-right font-mono">NPR {item.totalPrice.toFixed(2)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              {/* totals */}
-              <div className="space-y-0.5 text-[10px] text-gray-700 max-w-[200px] ml-auto leading-tight">
-                <div className="flex justify-between">
-                  <span>Subtotal:</span>
-                  <span className="font-mono">NPR {invoiceToView.subTotal.toFixed(2)}</span>
-                </div>
-                {invoiceToView.discount > 0 && (
-                  <div className="flex justify-between text-red-600">
-                    <span>Discount:</span>
-                    <span className="font-mono">-NPR {invoiceToView.discount.toFixed(2)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between font-medium">
-                  <span>Taxable Post-Discount:</span>
-                  <span className="font-mono">NPR {(invoiceToView.subTotal - invoiceToView.discount).toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>VAT Collected ({invoiceToView.vatRate}%):</span>
-                  <span className="font-mono">NPR {invoiceToView.vatAmount.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between border-t border-gray-400 pt-1 text-[11px] text-gray-950 font-bold">
-                  <span>GRAND TOTAL:</span>
-                  <span className="font-mono text-teal-700">NPR {invoiceToView.grandTotal.toFixed(2)}</span>
-                </div>
-              </div>
-
-              {invoiceToView.refundReason && (
-                <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg text-red-800 space-y-0.5 mt-3 text-[10px]">
-                  <p className="font-bold uppercase text-[9px]">Refund Audit Reason Log:</p>
-                  <p className="italic">"{invoiceToView.refundReason}"</p>
-                  <p className="text-[9px] font-mono text-right">Refunded on: {new Date(invoiceToView.refundedAt || '').toLocaleString()}</p>
+          {/* Invoice Printable layout block */}
+          <div className="p-5 border border-gray-300 rounded-xl bg-[#fafafa] font-sans text-xs text-gray-800 space-y-3 shadow-inner max-h-[400px] overflow-y-auto" id="global-printable-receipt">
+            <div className="text-center space-y-0.5 pb-2 border-b border-gray-300 border-dashed">
+              <h3 className="text-sm font-extrabold text-gray-950 uppercase tracking-tight">{invoiceToView.pharmacyName || t.title}</h3>
+              <p className="text-[10px] text-gray-500">{invoiceToView.location || t.location}</p>
+              <p className="font-semibold text-[10px]">PAN / VAT No: {invoiceToView.panOrVat || '6244700295'}</p>
+              <h4 className="text-[11px] font-extrabold text-gray-950 uppercase border-y border-gray-200 py-1 tracking-wider mt-1.5">PAYMENT RECEIPT</h4>
+              {invoiceToView.paymentStatus === 'Refunded' && (
+                <div className="my-1.5 py-1 bg-red-100 text-red-800 border-2 border-red-300 font-bold rounded uppercase tracking-widest text-[11px]" id="invoice-void-banner">
+                  VOID / REFUNDED INVOICE
                 </div>
               )}
+            </div>
 
-              {/* Sign footer block */}
-              <div className="pt-6 border-t border-dashed border-gray-300 text-[9px]">
-                <div className="text-center italic text-gray-500 pb-3">
-                  {t.thankYou}
+            {/* metadata rows */}
+            <div className="text-[10px] space-y-0.5 border-b border-gray-200 pb-2 leading-tight">
+              <div className="flex justify-between">
+                <span>Invoice No: <span className="font-mono font-bold text-gray-950">{invoiceToView.id}</span></span>
+                <span>Date: <span className="font-mono">{new Date(invoiceToView.createdAt).toLocaleString()}</span></span>
+              </div>
+
+              <div>
+                Bill To: <span className="font-bold text-gray-900">
+                  {invoiceToView.patientId ? (patients.find(p => (p.id || p._id) === invoiceToView.patientId)?.fullName || (patients.find(p => (p.id || p._id) === invoiceToView.patientId) as any)?.name || invoiceToView.patientId) : 'Walk-in'}
+                </span>
+              </div>
+
+              <div>Merged from: <span className="font-semibold text-gray-950">1 bill(s)</span></div>
+              <div>Payment Method: <span className="font-semibold text-gray-950">{invoiceToView.paymentMethod}</span></div>
+            </div>
+
+            {/* items */}
+            <table className="w-full text-[10px] leading-tight">
+              <thead>
+                <tr className="border-b border-gray-300 font-bold text-gray-950 text-left">
+                  <th className="pb-1">Item</th>
+                  <th className="pb-1 text-center">Qty</th>
+                  <th className="pb-1 text-right">Rate</th>
+                  <th className="pb-1 text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 border-b border-gray-300">
+                {invoiceToView.items.map((item, idx) => (
+                  <tr key={idx}>
+                    <td className="py-1">
+                      <p className="font-bold text-gray-950">{item.name}</p>
+                      {item.dosage && <p className="text-[9px] text-gray-500">{item.dosage}</p>}
+                    </td>
+                    <td className="py-1 text-center font-mono">{item.quantity}</td>
+                    <td className="py-1 text-right font-mono">NPR {item.unitPrice.toFixed(2)}</td>
+                    <td className="py-1 text-right font-mono">NPR {item.totalPrice.toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* totals */}
+            <div className="space-y-0.5 text-[10px] text-gray-700 max-w-[200px] ml-auto leading-tight">
+              <div className="flex justify-between">
+                <span>Subtotal:</span>
+                <span className="font-mono">NPR {invoiceToView.subTotal.toFixed(2)}</span>
+              </div>
+              {invoiceToView.discount > 0 && (
+                <div className="flex justify-between text-red-600">
+                  <span>Discount:</span>
+                  <span className="font-mono">-NPR {invoiceToView.discount.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between items-end px-2">
-                  <div className="text-center font-bold text-gray-400 border-t border-gray-300 pt-1 w-20">
-                    Customer Sign
-                  </div>
-                  <div className="text-center font-bold text-gray-400 border-t border-gray-300 pt-1 w-20">
-                    {t.authorizedSign}
-                  </div>
-                </div>
+              )}
+              <div className="flex justify-between font-medium">
+                <span>Taxable Amount:</span>
+                <span className="font-mono">NPR {(invoiceToView.subTotal - invoiceToView.discount).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between border-t border-gray-400 pt-1 text-[11px] text-gray-950 font-bold">
+                <span>GRAND TOTAL:</span>
+                <span className="font-mono text-teal-700">NPR {invoiceToView.grandTotal.toFixed(2)}</span>
               </div>
             </div>
 
-            {/* Print / Close */}
-            <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-              <button
-                type="button"
-                onClick={() => setInvoiceToView(null)}
-                className="px-5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold uppercase tracking-wider rounded-lg border border-gray-200 cursor-pointer"
-              >
-                Close
-              </button>
-              <button
-                type="button"
-                onClick={() => window.print()}
-                className="px-6 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer"
-              >
-                <Printer className="h-4 w-4" />
-                Print Invoice
-              </button>
+            <div className="text-[10px] font-bold text-gray-900 pt-1">
+              STATUS: <span className="text-teal-700">PAID ({invoiceToView.paymentMethod})</span>
+            </div>
+
+            {invoiceToView.refundReason && (
+              <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg text-red-800 space-y-0.5 mt-3 text-[10px]">
+                <p className="font-bold uppercase text-[9px]">Refund Audit Reason Log:</p>
+                <p className="italic">"{invoiceToView.refundReason}"</p>
+                <p className="text-[9px] font-mono text-right">Refunded on: {new Date(invoiceToView.refundedAt || '').toLocaleString()}</p>
+              </div>
+            )}
+
+            {/* Sign footer block */}
+            <div className="pt-6 border-t border-dashed border-gray-300 text-[9px]">
+              <div className="text-center italic text-gray-500 pb-3">
+                Thank you, visit again!
+              </div>
+              <div className="flex justify-between items-end px-2">
+                <div className="text-center font-bold text-gray-400 border-t border-gray-300 pt-1 w-20">
+                  Customer Sign
+                </div>
+                <div className="text-center font-bold text-gray-400 border-t border-gray-300 pt-1 w-20">
+                  Authorized Sign
+                </div>
+              </div>
             </div>
           </div>
+
+          {/* Print / Close */}
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+            <button
+              type="button"
+              onClick={() => setInvoiceToView(null)}
+              className="px-5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold uppercase tracking-wider rounded-lg border border-gray-200 cursor-pointer"
+            >
+              Close
+            </button>
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="px-6 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer"
+            >
+              <Printer className="h-4 w-4" />
+              Print Invoice
+            </button>
+          </div>
         </div>
-      )}
+      </div>
+    )}
 
       {/* MOBILE DRAWER OVERLAY */}
       {isMobileMenuOpen && (

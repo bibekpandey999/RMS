@@ -929,7 +929,7 @@ export default function App() {
       </div>
 
       {/* APP-WIDE GLOBAL INVOICE OVERLAY POPUP */}
-     {invoiceToView && (
+      {invoiceToView && (
         <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in" id="global-invoice-modal">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-6 shadow-2xl border border-gray-100">
             <div className="flex justify-between items-center border-b border-gray-100 pb-3">
@@ -1035,8 +1035,8 @@ export default function App() {
               )}
 
               {/* Sign footer block */}
-              <div className="pt-6 border-t border-dashed border-gray-300 text-[9px] space-y-2">
-                <div className="text-center italic text-gray-500">
+              <div className="pt-6 border-t border-dashed border-gray-300 text-[9px]">
+                <div className="text-center italic text-gray-500 pb-3">
                   {t.thankYou}
                 </div>
                 <div className="flex justify-between items-end px-2">
@@ -1119,18 +1119,18 @@ export default function App() {
                 )}
 
                 {canAccess('totalorder') && (
-  <button
-    onClick={() => { setCurrentView('totalorder'); setSelectedPatient(null); setIsMobileMenuOpen(false); }}
-    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-      currentView === 'totalorder' ? 'bg-teal-50 text-teal-800' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-    }`}
-  >
-    <ClipboardList className={`h-4.5 w-4.5 ${currentView === 'totalorder' ? 'text-teal-600' : 'text-gray-400'}`} />
-    <span>{lang === 'en' ? 'Total Sales' : 'कुल बिक्री'}</span>
-  </button>
-)}
+                  <button
+                    onClick={() => { setCurrentView('totalorder'); setSelectedPatient(null); setIsMobileMenuOpen(false); }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                      currentView === 'totalorder' ? 'bg-teal-50 text-teal-800' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
+                  >
+                    <ClipboardList className={`h-4.5 w-4.5 ${currentView === 'totalorder' ? 'text-teal-600' : 'text-gray-400'}`} />
+                    <span>{lang === 'en' ? 'Total Sales' : 'कुल बिक्री'}</span>
+                  </button>
+                )}
 
-{canAccess('unpaidbill') && (
+                {canAccess('unpaidbill') && (
                   <button
                     onClick={() => { setCurrentView('unpaidbill'); setSelectedPatient(null); setIsMobileMenuOpen(false); }}
                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${

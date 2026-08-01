@@ -604,7 +604,7 @@ export default function UnpaidBill({ lang = 'en' as 'en' | 'ne' }: { lang?: 'en'
     setReceiptPaymentMethod(null);
   };
 
-  return (
+return (
     <div className="h-full flex flex-col" id="unpaid-bill-root">
       {/* Page header */}
       <div className="flex items-center justify-between mb-5 shrink-0">
@@ -752,10 +752,10 @@ export default function UnpaidBill({ lang = 'en' as 'en' | 'ne' }: { lang?: 'en'
                     <table className="w-full text-xs">
                       <thead className="bg-gray-50 text-gray-500">
                         <tr>
-                          <th className="text-left font-semibold px-3 py-2">Item</th>
-                          <th className="text-center font-semibold px-2 py-2">Qty</th>
-                          <th className="text-right font-semibold px-2 py-2">Rate</th>
-                          <th className="text-right font-semibold px-3 py-2">Total</th>
+                          <th className="text-left font-semibold px-3 py-2">{lang === 'en' ? 'Item' : 'परिकार'}</th>
+                          <th className="text-center font-semibold px-2 py-2">{lang === 'en' ? 'Qty' : 'मात्रा'}</th>
+                          <th className="text-right font-semibold px-2 py-2">{lang === 'en' ? 'Rate' : 'दर'}</th>
+                          <th className="text-right font-semibold px-3 py-2">{lang === 'en' ? 'Total' : 'जम्मा'}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100">
@@ -844,7 +844,7 @@ export default function UnpaidBill({ lang = 'en' as 'en' | 'ne' }: { lang?: 'en'
                   )}
                   {submitting
                     ? lang === 'en' ? 'Marking paid…' : 'भुक्तानी हुँदै…'
-                    : lang === 'en' ? `Mark ${selectedGroup.billIds.length} Bill(s) Paid` : 'भुक्तानी भएको चिन्ह लगाउनुहोस्'}
+                    : lang === 'en' ? `Mark ${selectedGroup.billIds.length} Bill(s) Paid` : `${selectedGroup.billIds.length} बिलहरू भुक्तानी भएको चिन्ह लगाउनुहोस्`}
                 </button>
                 {!paymentMethod && (
                   <p className="text-[11px] text-gray-400 text-center mt-2">

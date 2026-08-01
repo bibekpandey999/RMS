@@ -197,7 +197,7 @@ function BillModal({
         <div className="flex justify-between items-center border-b border-gray-100 pb-3">
           <span className="font-bold text-gray-900 flex items-center gap-1.5 text-sm">
             <Receipt className="h-5 w-5 text-teal-600" />
-            {lang === 'en' ? '80mm Thermal Invoice' : 'बिजक'}
+            {lang === 'en' ? 'Thermal Invoice' : 'बिजक'}
           </span>
           <button onClick={onClose} className="p-1 text-gray-400 hover:text-gray-950 cursor-pointer">
             <X className="h-5 w-5" />
@@ -329,7 +329,7 @@ function BillModal({
             className="px-6 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer"
           >
             <Printer className="h-4 w-4" />
-            Print 80mm Invoice
+            Print Invoice
           </button>
         </div>
       </div>

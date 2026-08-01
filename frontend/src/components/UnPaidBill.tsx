@@ -337,29 +337,27 @@ function MergedBillModal({
 
         <div
           id="printable-merged-bill"
-          className="p-5 border border-gray-300 rounded-xl bg-[#fafafa] font-sans text-xs text-gray-800 space-y-4 shadow-inner max-h-[420px] overflow-y-auto"
+          className="p-5 border border-gray-300 rounded-xl bg-[#fafafa] font-sans text-xs text-gray-800 space-y-3 shadow-inner max-h-[420px] overflow-y-auto"
         >
-          <div className="text-center space-y-1 pb-3 border-b border-gray-300 border-dashed">
-            <h3 className="text-base font-bold text-gray-950 uppercase tracking-tight">
-              {group.restaurantName}
+          <div className="text-center space-y-0.5 pb-2 border-b border-gray-300 border-dashed">
+            <h3 className="text-sm font-extrabold text-gray-950 uppercase tracking-tight">
+              LOCAL VIBES CAFE AND BAR
             </h3>
-            <p className="text-[10px] text-gray-500">{group.location}</p>
-            <p className="font-semibold text-[10px]">PAN / VAT No: {group.panOrVat}</p>
-            <h4 className="text-xs font-extrabold text-gray-950 uppercase border-y border-gray-200 py-1 tracking-wider mt-2">
+            <p className="text-[10px] text-gray-500">Butwal-10,chauraha</p>
+            <p className="font-semibold text-[10px]">PAN / VAT No: 6244700295</p>
+            <h4 className="text-[11px] font-extrabold text-gray-950 uppercase border-y border-gray-200 py-1 tracking-wider mt-1.5">
               {isPaidReceipt
-                ? (lang === 'en' ? 'Payment Receipt' : 'भुक्तानी रसिद')
-                : (lang === 'en' ? 'Combined Invoice' : 'संयुक्त बिजक')}
+                ? (lang === 'en' ? 'PAYMENT RECEIPT' : 'भुक्तानी रसिद')
+                : (lang === 'en' ? 'COMBINED INVOICE' : 'संयुक्त बिजक')}
             </h4>
           </div>
 
-          <div className="grid grid-cols-2 gap-y-1 border-b border-gray-200 pb-2 leading-relaxed">
+          <div className="text-[10px] space-y-0.5 border-b border-gray-200 pb-2 leading-tight">
+            <div className="flex justify-between">
+              <span>Invoice No: <span className="font-mono font-bold text-gray-950">{invoiceLabel}</span></span>
+              <span>Date: <span className="font-mono">{new Date().toLocaleString()}</span></span>
+            </div>
             <div>
-              Invoice No: <span className="font-mono font-bold text-gray-950">{invoiceLabel}</span>
-            </div>
-            <div className="text-right">
-              Date: <span className="font-mono">{new Date().toLocaleString()}</span>
-            </div>
-            <div className="col-span-2">
               Bill To: <span className="font-bold text-gray-900">{group.billTo}</span>
               {group.tableNumbers.length > 0 && (
                 <span className="text-[10px] text-gray-500 font-mono ml-1">
@@ -367,21 +365,21 @@ function MergedBillModal({
                 </span>
               )}
             </div>
-            <div className="col-span-2">
+            <div>
               {lang === 'en' ? 'Merged from' : 'बाट मर्ज गरिएको'}:{' '}
               <span className="font-semibold text-gray-950">
                 {group.billIds.length} {lang === 'en' ? 'bill(s)' : 'बिल(हरू)'}
               </span>
             </div>
             {isPaidReceipt && (
-              <div className="col-span-2">
+              <div>
                 {lang === 'en' ? 'Payment Method' : 'भुक्तानी विधि'}:{' '}
                 <span className="font-semibold text-gray-950">{paidPaymentMethod}</span>
               </div>
             )}
           </div>
 
-          <table className="w-full text-[11px] leading-relaxed">
+          <table className="w-full text-[10px] leading-tight">
             <thead>
               <tr className="border-b border-gray-300 font-bold text-gray-950 text-left">
                 <th className="pb-1">Item</th>
@@ -402,7 +400,7 @@ function MergedBillModal({
             </tbody>
           </table>
 
-          <div className="space-y-1 text-[11px] text-gray-700 max-w-[220px] ml-auto">
+          <div className="space-y-0.5 text-[10px] text-gray-700 max-w-[200px] ml-auto leading-tight">
             <div className="flex justify-between">
               <span>Subtotal:</span>
               <span className="font-mono">NPR {money(group.subtotal)}</span>
@@ -423,24 +421,24 @@ function MergedBillModal({
                 <span className="font-mono">NPR {money(group.vatCollected)}</span>
               </div>
             )}
-            <div className="flex justify-between border-t border-gray-400 pt-1 text-xs text-gray-950 font-bold">
+            <div className="flex justify-between border-t border-gray-400 pt-1 text-[11px] text-gray-950 font-bold">
               <span>GRAND TOTAL:</span>
               <span className="font-mono text-amber-700">NPR {money(group.grandTotal)}</span>
             </div>
             {isPaidReceipt && (
-              <div className="flex justify-between text-emerald-700 font-bold text-xs pt-0.5">
+              <div className="flex justify-between text-emerald-700 font-bold text-[10px] pt-0.5">
                 <span>STATUS:</span>
                 <span>PAID ({paidPaymentMethod})</span>
               </div>
             )}
           </div>
 
-          <div className="pt-8 flex justify-between items-end border-t border-dashed border-gray-300">
-            <div className="text-center font-bold text-[9px] text-gray-400 border-t border-gray-300 pt-1 w-24">
+          <div className="pt-6 flex justify-between items-end border-t border-dashed border-gray-300 text-[9px]">
+            <div className="text-center font-bold text-gray-400 border-t border-gray-300 pt-1 w-20">
               Customer Sign
             </div>
-            <div className="text-center italic text-[10px] text-gray-500">Thank you, visit again!</div>
-            <div className="text-center font-bold text-[9px] text-gray-400 border-t border-gray-300 pt-1 w-24">
+            <div className="text-center italic text-gray-500">Thank you, visit again!</div>
+            <div className="text-center font-bold text-gray-400 border-t border-gray-300 pt-1 w-20">
               Authorized Sign
             </div>
           </div>

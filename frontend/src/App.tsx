@@ -929,7 +929,7 @@ export default function App() {
       </div>
 
       {/* APP-WIDE GLOBAL INVOICE OVERLAY POPUP */}
- {invoiceToView && (
+{invoiceToView && (
       <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in" id="global-invoice-modal">
         <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-6 shadow-2xl border border-gray-100">
           <div className="flex justify-between items-center border-b border-gray-100 pb-3">
@@ -941,6 +941,58 @@ export default function App() {
               <X className="h-5 w-5" />
             </button>
           </div>
+
+          <style>{`
+            @media print {
+              @page {
+                size: 80mm auto;
+                margin: 2mm;
+              }
+              html, body {
+                width: 80mm;
+              }
+              body * {
+                visibility: hidden;
+              }
+              #global-printable-receipt, #global-printable-receipt * {
+                visibility: visible;
+              }
+              #global-printable-receipt {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 76mm;
+                max-width: 76mm;
+                max-height: none !important;
+                overflow: visible !important;
+                border: none !important;
+                box-shadow: none !important;
+                background: #fff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                font-size: 9px;
+                line-height: 1.35;
+              }
+              #global-printable-receipt * {
+                font-weight: 600 !important;
+                color: #000 !important;
+                -webkit-font-smoothing: antialiased;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+              #global-printable-receipt h3 {
+                font-size: 12px;
+                font-weight: 800 !important;
+              }
+              #global-printable-receipt h4 {
+                font-size: 10px;
+                font-weight: 700 !important;
+              }
+              #global-printable-receipt table {
+                font-size: 8.5px;
+              }
+            }
+          `}</style>
 
           {/* Invoice Printable layout block */}
           <div className="p-5 border border-gray-300 rounded-xl bg-[#fafafa] font-sans text-xs text-gray-800 space-y-3 shadow-inner max-h-[400px] overflow-y-auto" id="global-printable-receipt">

@@ -294,11 +294,20 @@ function MergedBillModal({
             font-size: 9px;
             line-height: 1.35;
           }
+          #printable-merged-bill * {
+            font-weight: 600 !important;
+            color: #000 !important;
+            -webkit-font-smoothing: antialiased;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
           #printable-merged-bill h3 {
             font-size: 12px;
+            font-weight: 800 !important;
           }
           #printable-merged-bill h4 {
             font-size: 10px;
+            font-weight: 700 !important;
           }
           #printable-merged-bill table {
             font-size: 8.5px;

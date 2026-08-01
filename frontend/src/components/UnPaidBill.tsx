@@ -303,8 +303,8 @@ function MergedBillModal({
           #printable-merged-bill table {
             font-size: 8.5px;
           }
-          #printable-merged-bill .pt-8 {
-            padding-top: 12px;
+          #printable-merged-bill .pt-6 {
+            padding-top: 10px;
           }
         }
       `}</style>
@@ -433,13 +433,15 @@ function MergedBillModal({
             )}
           </div>
 
-          <div className="pt-6 flex justify-between items-end border-t border-dashed border-gray-300 text-[9px]">
-            <div className="text-center font-bold text-gray-400 border-t border-gray-300 pt-1 w-20">
-              Customer Sign
-            </div>
+          <div className="pt-6 border-t border-dashed border-gray-300 text-[9px] space-y-2">
             <div className="text-center italic text-gray-500">Thank you, visit again!</div>
-            <div className="text-center font-bold text-gray-400 border-t border-gray-300 pt-1 w-20">
-              Authorized Sign
+            <div className="flex justify-between items-end px-2">
+              <div className="text-center font-bold text-gray-400 border-t border-gray-300 pt-1 w-20">
+                Customer Sign
+              </div>
+              <div className="text-center font-bold text-gray-400 border-t border-gray-300 pt-1 w-20">
+                Authorized Sign
+              </div>
             </div>
           </div>
         </div>

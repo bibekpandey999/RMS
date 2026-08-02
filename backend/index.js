@@ -768,6 +768,8 @@ app.put("/api/admin/users/:userId", async (req, res) => {
             return res.status(404).json({ success: false, message: "User not found." });
         }
 
+        const oldPharmacyName = pharmacy.pharmacyName;
+
         if (id && id.trim() !== pharmacy.id) {
             const existing = await PharmacyUser.findOne({ id: id.trim() });
             if (existing) {
@@ -785,6 +787,14 @@ app.put("/api/admin/users/:userId", async (req, res) => {
         if (isActive !== undefined) pharmacy.isActive = isActive;
 
         await pharmacy.save();
+
+        // Cascade the rename into PharmacyStaff so staff logins keep working
+        if (pharmacyName && oldPharmacyName !== pharmacyName) {
+            await PharmacyStaff.updateMany(
+                { pharmacyName: oldPharmacyName },
+                { $set: { pharmacyName: pharmacyName } }
+            );
+        }
 
         return res.status(200).json({
             success: true,

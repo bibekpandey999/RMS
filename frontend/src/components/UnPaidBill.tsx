@@ -261,6 +261,17 @@ function MergedBillModal({
 
   const isPaidReceipt = !!paidPaymentMethod;
 
+  // Pull restaurant identity from the group itself (populated from the
+  // actual bill documents), falling back to the logged-in user's profile,
+  // then to a generic label — never hardcoded.
+  const loggedInUser = getLoggedInUser();
+  const displayRestaurantName =
+    group.restaurantName || loggedInUser?.pharmacyName || 'Restaurant';
+  const displayLocation =
+    group.location || loggedInUser?.location || 'N/A';
+  const displayPanOrVat =
+    group.panOrVat || loggedInUser?.PanOrVat || loggedInUser?.panOrVat || 'N/A';
+
   return (
     <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-[60] animate-fade-in">
       <style>{`
@@ -350,10 +361,10 @@ function MergedBillModal({
         >
           <div className="text-center space-y-0.5 pb-2 border-b border-gray-300 border-dashed">
             <h3 className="text-sm font-extrabold text-gray-950 uppercase tracking-tight">
-              LOCAL VIBES CAFE AND BAR
+              {displayRestaurantName}
             </h3>
-            <p className="text-[10px] text-gray-500">Butwal-10,chauraha</p>
-            <p className="font-semibold text-[10px]">PAN / VAT No: 6244700295</p>
+            <p className="text-[10px] text-gray-500">{displayLocation}</p>
+            <p className="font-semibold text-[10px]">PAN / VAT No: {displayPanOrVat}</p>
             <h4 className="text-[11px] font-extrabold text-gray-950 uppercase border-y border-gray-200 py-1 tracking-wider mt-1.5">
               {isPaidReceipt
                 ? (lang === 'en' ? 'PAYMENT RECEIPT' : 'भुक्तानी रसिद')

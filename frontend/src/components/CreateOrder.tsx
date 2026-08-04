@@ -20,16 +20,18 @@ import {
 const API_BASE = import.meta.env.VITE_API_URL || 'https://rms-0wk0.onrender.com';
 const MENU_URL = `${API_BASE}/api/menu`;       // <-- adjust to your actual menu-items endpoint
 const ORDERS_URL = `${API_BASE}/api/orders`;   // matches your index.js routes
+const TABLES_URL = `${API_BASE}/api/tables`;   // matches your tables route
 
-// Reads the logged-in restaurant's ID from localStorage, same pattern the
-// pharmacy version used. Adjust the key/shape if your restaurant login
-// response differs.
+// Reads the logged-in restaurant's ID from localStorage.
+// Your login response is stored under the "pharmacyUser" key, and the
+// restaurant's Mongo ID is the "_id" field on that object (the "id" field
+// is a separate short numeric code, not the Mongo ObjectId tables use).
 const getLoggedInRestaurantId = () => {
   try {
-    const raw = localStorage.getItem('user');
+    const raw = localStorage.getItem('pharmacyUser');
     if (!raw) return '';
     const parsed = JSON.parse(raw);
-    return parsed?.id ? String(parsed.id) : '';
+    return parsed?._id ? String(parsed._id) : '';
   } catch {
     return '';
   }
@@ -58,6 +60,15 @@ const getLoggedInRestaurantId = () => {
  * @property {number} quantity
  */
 
+/**
+ * @typedef {Object} TableItem
+ * @property {string} id
+ * @property {string} restaurantId
+ * @property {string} tableName
+ * @property {number} capacity
+ * @property {string} status
+ */
+
 const mapRawToMenuItem = (raw) => ({
   id: raw._id,
   name: raw.itemName || raw.name || 'Unnamed Item',
@@ -65,6 +76,14 @@ const mapRawToMenuItem = (raw) => ({
   category: raw.category || 'General',
   price: Number(raw.price ?? raw.itemPrice) || 0,
   available: raw.available !== false,
+});
+
+const mapRawToTable = (raw) => ({
+  id: raw._id || raw.id,
+  restaurantId: raw.restaurantId,
+  tableName: raw.tableName || 'Unnamed Table',
+  capacity: raw.capacity,
+  status: raw.status || 'Available',
 });
 
 export default function CreateOrder({ onOrderCreated }) {
@@ -76,9 +95,14 @@ export default function CreateOrder({ onOrderCreated }) {
   const [menuError, setMenuError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Tables catalog (scoped to this restaurant)
+  const [tables, setTables] = useState(/** @type {TableItem[]} */ ([]));
+  const [tablesLoading, setTablesLoading] = useState(true);
+  const [tablesError, setTablesError] = useState('');
+
   // Order details
   const [customerName, setCustomerName] = useState('');
-  const [tableNumber, setTableNumber] = useState('');
+  const [tableNumber, setTableNumber] = useState(''); // holds the selected table's id
   const [cart, setCart] = useState(/** @type {CartLine[]} */ ([]));
   const [orderNote, setOrderNote] = useState('');
 
@@ -121,8 +145,40 @@ export default function CreateOrder({ onOrderCreated }) {
     }
   };
 
+  // ==========================================
+  // FETCH TABLES — scoped to the logged-in restaurant only.
+  // The backend already filters by restaurantId when passed as a query
+  // param, but we also double-check on the client (belt & suspenders) in
+  // case the API is ever called without that filter.
+  // ==========================================
+  const fetchTables = async () => {
+    setTablesLoading(true);
+    setTablesError('');
+    try {
+      const url = restaurantId
+        ? `${TABLES_URL}?restaurantId=${encodeURIComponent(restaurantId)}`
+        : TABLES_URL;
+      const res = await fetch(url);
+      const result = await res.json();
+      if (!res.ok || !result.success) {
+        throw new Error(result.message || 'Failed to load tables.');
+      }
+      const items = (result.data || [])
+        .map(mapRawToTable)
+        // client-side safety filter: only keep tables whose restaurantId
+        // matches the logged-in restaurant's id from localStorage
+        .filter((t) => !restaurantId || String(t.restaurantId) === String(restaurantId));
+      setTables(items);
+    } catch (err) {
+      setTablesError(err.message || 'Could not load tables.');
+    } finally {
+      setTablesLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchMenu();
+    fetchTables();
   }, []);
 
   const filteredMenu = useMemo(() => {
@@ -135,6 +191,12 @@ export default function CreateOrder({ onOrderCreated }) {
         m.category.toLowerCase().includes(q)
     );
   }, [searchQuery, menuItems]);
+
+  // Currently selected table object (for showing its name in the confirm modal)
+  const selectedTable = useMemo(
+    () => tables.find((t) => t.id === tableNumber) || null,
+    [tables, tableNumber]
+  );
 
   // ==========================================
   // CART OPERATIONS
@@ -194,7 +256,7 @@ export default function CreateOrder({ onOrderCreated }) {
       return;
     }
     if (!hasRequiredDetails) {
-      setErrorMessage('Please enter both a customer name and a table number.');
+      setErrorMessage('Please enter a customer name and select a table.');
       return;
     }
 
@@ -207,6 +269,10 @@ export default function CreateOrder({ onOrderCreated }) {
   // single-item Order schema in createorder.js.
   // The orderNote (if any) is saved into the `description` field of each
   // line item, so it shows up alongside that item's own description.
+  //
+  // NOTE: tableNumber currently holds the selected table's _id. If your
+  // Order schema expects the table's *name* (e.g. "Table 4") instead of
+  // its ObjectId, swap the value below to `selectedTable?.tableName || ''`.
 const placeOrder = async () => {
     setIsSubmitting(true);
     setErrorMessage('');
@@ -218,7 +284,7 @@ const placeOrder = async () => {
         body: JSON.stringify({
           restaurantId,
           customerName: customerName.trim(),
-          tableNumber: tableNumber.trim(),
+          tableNumber: selectedTable?.tableName || tableNumber.trim(),
           orderNote: orderNote.trim(),
           items: cart.map((line) => ({
             itemName: line.name,
@@ -294,15 +360,41 @@ const placeOrder = async () => {
           </div>
           <div>
             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">
-              Table 
+              Table
             </label>
-            <input
-              type="text"
+            <select
               value={tableNumber}
               onChange={(e) => setTableNumber(e.target.value)}
-              placeholder="Enter table name "
-              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs focus:outline-hidden"
-            />
+              disabled={tablesLoading || tables.length === 0}
+              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs focus:outline-hidden disabled:text-gray-400 disabled:cursor-not-allowed"
+            >
+              <option value="">
+                {tablesLoading
+                  ? 'Loading tables...'
+                  : tables.length === 0
+                  ? 'No tables found'
+                  : 'Select a table'}
+              </option>
+              {tables.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.tableName}
+                  {t.capacity ? ` (seats ${t.capacity})` : ''}
+                  {t.status && t.status !== 'Available' ? ` — ${t.status}` : ''}
+                </option>
+              ))}
+            </select>
+            {tablesError && (
+              <p className="text-[10px] text-red-500 font-medium mt-1">
+                {tablesError}{' '}
+                <button
+                  type="button"
+                  onClick={fetchTables}
+                  className="underline hover:text-red-700"
+                >
+                  Retry
+                </button>
+              </p>
+            )}
           </div>
         </div>
 
@@ -519,7 +611,7 @@ const placeOrder = async () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Table</span>
-                <span className="font-bold">{tableNumber}</span>
+                <span className="font-bold">{selectedTable?.tableName || tableNumber}</span>
               </div>
               {orderNote.trim() && (
                 <div className="flex justify-between gap-2">

@@ -22,16 +22,15 @@ const MENU_URL = `${API_BASE}/api/menu`;       // <-- adjust to your actual menu
 const ORDERS_URL = `${API_BASE}/api/orders`;   // matches your index.js routes
 const TABLES_URL = `${API_BASE}/api/tables`;   // matches your tables route
 
-// Reads the logged-in restaurant's ID from localStorage.
-// Your login response is stored under the "pharmacyUser" key, and the
-// restaurant's Mongo ID is the "_id" field on that object (the "id" field
-// is a separate short numeric code, not the Mongo ObjectId tables use).
+// Reads the logged-in restaurant's ID from localStorage — same key/field
+// ("user" -> .id) as the working menu fetch used, so tables now use the
+// exact same identity the menu already relies on.
 const getLoggedInRestaurantId = () => {
   try {
-    const raw = localStorage.getItem('pharmacyUser');
+    const raw = localStorage.getItem('user');
     if (!raw) return '';
     const parsed = JSON.parse(raw);
-    return parsed?._id ? String(parsed._id) : '';
+    return parsed?.id ? String(parsed.id) : '';
   } catch {
     return '';
   }
@@ -146,10 +145,7 @@ export default function CreateOrder({ onOrderCreated }) {
   };
 
   // ==========================================
-  // FETCH TABLES — scoped to the logged-in restaurant only.
-  // The backend already filters by restaurantId when passed as a query
-  // param, but we also double-check on the client (belt & suspenders) in
-  // case the API is ever called without that filter.
+  // FETCH TABLES — scoped to the logged-in restaurant only
   // ==========================================
   const fetchTables = async () => {
     setTablesLoading(true);
@@ -165,8 +161,6 @@ export default function CreateOrder({ onOrderCreated }) {
       }
       const items = (result.data || [])
         .map(mapRawToTable)
-        // client-side safety filter: only keep tables whose restaurantId
-        // matches the logged-in restaurant's id from localStorage
         .filter((t) => !restaurantId || String(t.restaurantId) === String(restaurantId));
       setTables(items);
     } catch (err) {
@@ -269,10 +263,6 @@ export default function CreateOrder({ onOrderCreated }) {
   // single-item Order schema in createorder.js.
   // The orderNote (if any) is saved into the `description` field of each
   // line item, so it shows up alongside that item's own description.
-  //
-  // NOTE: tableNumber currently holds the selected table's _id. If your
-  // Order schema expects the table's *name* (e.g. "Table 4") instead of
-  // its ObjectId, swap the value below to `selectedTable?.tableName || ''`.
 const placeOrder = async () => {
     setIsSubmitting(true);
     setErrorMessage('');
@@ -434,7 +424,6 @@ const placeOrder = async () => {
               >
                 <div className="space-y-0.5 max-w-[170px]">
                   <p className="font-bold text-gray-900 leading-tight">{line.name}</p>
-                  {/* Per-unit price, e.g. "NPR 50.00 each" for 1 tea's price even if qty is 5 */}
                   <p className="text-[10px] font-mono text-teal-600 font-semibold">
                     NPR {line.unitPrice.toFixed(2)} each
                   </p>
@@ -584,9 +573,7 @@ const placeOrder = async () => {
         </div>
       </div>
 
-      {/* CONFIRMATION MODAL — "Are you sure?" with checkbox gate.
-          Nothing is written to the DB until confirmChecked is true AND
-          the confirm button below is clicked. */}
+      {/* CONFIRMATION MODAL — "Are you sure?" with checkbox gate. */}
       {showConfirmModal && (
         <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl border border-gray-100">

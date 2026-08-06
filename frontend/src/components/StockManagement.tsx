@@ -175,7 +175,7 @@ const StockManagement: React.FC = () => {
   const grandTotal = stocks.reduce((sum, s) => sum + s.totalPrice, 0);
   const totalItems = stocks.length;
   const totalUnits = stocks.reduce((sum, s) => sum + s.quantity, 0);
-  const lowStockCount = stocks.filter((s) => s.quantity <= 5).length;
+  const lowStockCount = stocks.filter((s) => s.quantity <= 20).length;
 
   return (
     <div className="min-h-full bg-[#f8fafc] font-sans">

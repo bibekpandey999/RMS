@@ -240,13 +240,7 @@ const StockManagement: React.FC = () => {
               {lowStockCount}
             </p>
           </div>
-          <div className="bg-teal-600 rounded-xl shadow-sm p-4">
-            <div className="flex items-center gap-2 text-teal-100 mb-1.5">
-              <Wallet className="h-4 w-4" />
-              <span className="text-[10px] font-bold uppercase tracking-wider">Total Value</span>
-            </div>
-            <p className="text-xl font-extrabold text-white">Rs. {grandTotal.toFixed(2)}</p>
-          </div>
+          
         </div>
 
         {/* Add form */}

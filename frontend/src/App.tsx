@@ -917,9 +917,9 @@ export default function App() {
               currentUserRole={legacyRole}
             />
           )}
-          {currentView === 'stock' && canAccess('stock') && (
-  <StockManagement restaurantId={activePharmacyName} />
-)}
+            {currentView === 'stock' && canAccess('stock') && (
+     <StockManagement />
+   )}
 
           {currentView === 'billing' && canAccess('billing') && (
             <BillingManager

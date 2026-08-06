@@ -22,6 +22,7 @@ const StockManagement: React.FC = () => {
   const [stocks, setStocks] = useState<StockItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [restaurantId, setRestaurantId] = useState<string | null>(null);
   const [restaurantName, setRestaurantName] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -43,27 +44,28 @@ const StockManagement: React.FC = () => {
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Resolve the restaurant name from localStorage (pharmacyUser)
-  const getStoredPharmacyName = (): string | null => {
+  // Resolve the restaurant's id (and name, for display) from localStorage
+  const getStoredPharmacyUser = (): { id: string; pharmacyName: string } | null => {
     try {
       const raw = localStorage.getItem("pharmacyUser");
       if (!raw) return null;
       const parsed = JSON.parse(raw);
-      return parsed?.pharmacyName || null;
+      if (!parsed?.id) return null;
+      return { id: parsed.id, pharmacyName: parsed.pharmacyName || "" };
     } catch {
       return null;
     }
   };
 
-  const fetchStocks = async (pharmacyName: string) => {
+  const fetchStocks = async (rid: string) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get(`${API_BASE}?restaurantId=${encodeURIComponent(pharmacyName)}`);
+      const res = await axios.get(`${API_BASE}?restaurantId=${encodeURIComponent(rid)}`);
       const allData: StockItem[] = res.data.data || [];
       // Extra client-side safety: only show rows whose restaurantId matches
-      // the pharmacyName currently stored in localStorage.
-      const filtered = allData.filter((s) => s.restaurantId === pharmacyName);
+      // the restaurant id currently stored in localStorage.
+      const filtered = allData.filter((s) => s.restaurantId === rid);
       setStocks(filtered);
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to fetch stocks");
@@ -73,10 +75,11 @@ const StockManagement: React.FC = () => {
   };
 
   useEffect(() => {
-    const name = getStoredPharmacyName();
-    setRestaurantName(name);
-    if (name) {
-      fetchStocks(name);
+    const user = getStoredPharmacyUser();
+    if (user) {
+      setRestaurantId(user.id);
+      setRestaurantName(user.pharmacyName);
+      fetchStocks(user.id);
     } else {
       setLoading(false);
       setError("No restaurant found in local storage. Please log in again.");
@@ -86,7 +89,7 @@ const StockManagement: React.FC = () => {
 
   const handleAddStock = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!restaurantName) return;
+    if (!restaurantId) return;
     if (!stockName.trim() || quantity === "" || perPiecePrice === "") {
       setError("Please fill all fields");
       return;
@@ -96,7 +99,7 @@ const StockManagement: React.FC = () => {
     setError(null);
     try {
       await axios.post(API_BASE, {
-        restaurantId: restaurantName,
+        restaurantId,
         stockName: stockName.trim(),
         quantity: Number(quantity),
         perPiecePrice: Number(perPiecePrice),
@@ -106,7 +109,7 @@ const StockManagement: React.FC = () => {
       setQuantity("");
       setPerPiecePrice("");
       setShowAddForm(false);
-      await fetchStocks(restaurantName);
+      await fetchStocks(restaurantId);
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to add stock");
     } finally {
@@ -115,12 +118,12 @@ const StockManagement: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!restaurantName) return;
+    if (!restaurantId) return;
     setDeletingId(id);
     try {
       await axios.delete(`${API_BASE}/${id}`);
       setDeleteTargetId(null);
-      await fetchStocks(restaurantName);
+      await fetchStocks(restaurantId);
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to delete stock");
     } finally {
@@ -143,7 +146,7 @@ const StockManagement: React.FC = () => {
   };
 
   const handleUpdate = async (id: string) => {
-    if (!restaurantName) return;
+    if (!restaurantId) return;
     if (!editStockName.trim() || editQuantity === "" || editPerPiecePrice === "") {
       setError("Please fill all fields");
       return;
@@ -158,7 +161,7 @@ const StockManagement: React.FC = () => {
       });
 
       cancelEdit();
-      await fetchStocks(restaurantName);
+      await fetchStocks(restaurantId);
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to update stock");
     } finally {
@@ -199,7 +202,7 @@ const StockManagement: React.FC = () => {
 
           <button
             onClick={() => setShowAddForm((v) => !v)}
-            disabled={!restaurantName}
+            disabled={!restaurantId}
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold px-4 py-2.5 shadow-sm transition-colors cursor-pointer"
           >
             {showAddForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
@@ -240,7 +243,7 @@ const StockManagement: React.FC = () => {
               {lowStockCount}
             </p>
           </div>
-          
+
         </div>
 
         {/* Add form */}
@@ -323,7 +326,7 @@ const StockManagement: React.FC = () => {
               <Loader2 className="h-6 w-6 text-teal-600 animate-spin" />
               <p className="text-sm text-gray-400">Loading stock...</p>
             </div>
-          ) : !restaurantName ? (
+          ) : !restaurantId ? (
             <div className="flex flex-col items-center justify-center py-16 gap-2 text-center px-6">
               <AlertTriangle className="h-8 w-8 text-amber-500" />
               <p className="text-sm font-semibold text-gray-700">No restaurant session found</p>

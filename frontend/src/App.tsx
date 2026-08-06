@@ -66,7 +66,7 @@ const ROLE_ACCESS: Record<StaffRole, RoleConfig> = {
   },
   'Kitchen Staff': {
     label: 'Kitchen Staff',
-    pages: ['kitchen'],
+    pages: ['kitchen','stock'],
     defaultView: 'kitchen',
   },
   Cashier: {

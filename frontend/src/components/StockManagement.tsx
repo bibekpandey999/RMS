@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 // Change this to match your backend URL
-const API_BASE = "http://localhost:5000/api/stocks";
+const API_BASE = "https://rms-0wk0.onrender.com/api/stocks";
 
 interface StockItem {
   _id: string;

@@ -15,6 +15,7 @@ import KitchenDisplay from './components/KitchenDisplay';
 import CreateBill from './components/CreateBill';
 import TotalOrder from './components/DailyOrderItem';
 import UnpaidBill from './components/UnPaidBill';
+import StockManagement from './components/StockManagement';
 
 import Dashboard from './components/Dashboard';
 import CreateOrder from './components/CreateOrder';
@@ -39,7 +40,7 @@ type StaffRole =
   | 'Kitchen Staff'
   | 'Cashier';
 
-type AppView = 'dashboard' | 'pos' | 'inventory' | 'billing' | 'staff' | 'settings' | 'orders' | 'tables' | 'kitchen' | 'createbill' | 'totalorder' | 'unpaidbill';
+type AppView = 'dashboard' | 'pos' | 'inventory' | 'billing' | 'staff' | 'settings' | 'orders' | 'tables' | 'kitchen' | 'createbill' | 'totalorder' | 'unpaidbill' | 'stock';
 
 interface RoleConfig {
   label: StaffRole;
@@ -55,7 +56,7 @@ interface RoleConfig {
 const ROLE_ACCESS: Record<StaffRole, RoleConfig> = {
   Manager: {
     label: 'Manager',
-    pages: ['dashboard', 'pos', 'inventory', 'billing', 'staff', 'settings', 'orders', 'tables', 'kitchen', 'createbill', 'totalorder', 'unpaidbill'],
+    pages: ['dashboard', 'pos', 'inventory', 'billing', 'staff', 'settings', 'orders', 'tables', 'kitchen', 'createbill', 'totalorder', 'unpaidbill', 'stock'],
     defaultView: 'dashboard',
   },
   Waiter: {
@@ -70,7 +71,7 @@ const ROLE_ACCESS: Record<StaffRole, RoleConfig> = {
   },
   Cashier: {
     label: 'Cashier',
-    pages: ['createbill', 'tables', 'billing', 'totalorder', 'unpaidbill'],
+    pages: ['createbill', 'tables', 'billing', 'totalorder', 'unpaidbill', 'stock'],
     defaultView: 'createbill',
   },
 };
@@ -739,6 +740,20 @@ export default function App() {
               </button>
             )}
 
+            {canAccess('stock') && (
+  <button
+    onClick={() => { setCurrentView('stock'); setSelectedPatient(null); }}
+    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+      currentView === 'stock'
+        ? 'bg-teal-50 text-teal-800'
+        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+    }`}
+  >
+    <Database className={`h-4.5 w-4.5 ${currentView === 'stock' ? 'text-teal-600' : 'text-gray-400'}`} />
+    <span>{lang === 'en' ? 'Stock' : 'स्टक'}</span>
+  </button>
+)}
+
             {canAccess('billing') && (
               <button
                 onClick={() => { setCurrentView('billing'); setSelectedPatient(null); }}
@@ -902,6 +917,9 @@ export default function App() {
               currentUserRole={legacyRole}
             />
           )}
+          {currentView === 'stock' && canAccess('stock') && (
+  <StockManagement restaurantId={activePharmacyName} />
+)}
 
           {currentView === 'billing' && canAccess('billing') && (
             <BillingManager
@@ -1263,6 +1281,18 @@ export default function App() {
                     <span>{lang === 'en' ? 'Menu' : 'मेनु'}</span>
                   </button>
                 )}
+
+                    {canAccess('stock') && (
+  <button
+    onClick={() => { setCurrentView('stock'); setSelectedPatient(null); setIsMobileMenuOpen(false); }}
+    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+      currentView === 'stock' ? 'bg-teal-50 text-teal-800' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+    }`}
+  >
+    <Database className={`h-4.5 w-4.5 ${currentView === 'stock' ? 'text-teal-600' : 'text-gray-400'}`} />
+    <span>{lang === 'en' ? 'Stock' : 'स्टक'}</span>
+  </button>
+)}
 
                 {canAccess('billing') && (
                   <button

@@ -7,6 +7,7 @@ const Table = require("./models/table");
 const Bill = require("./models/bill");
 const PharmacyUser = require("./models/login");
 const PharmacyStaff = require("./models/loginStaff");
+const Stock = require("./models/stock");
 const session = require('express-session');
 const MongoStore = require('connect-mongo').default || require('connect-mongo');
 const mongoose = require('mongoose');
@@ -646,6 +647,165 @@ app.patch("/api/bills/:id", async (req, res) => {
         });
     }
 });
+
+
+
+// ==========================================
+// 🧾 Stock
+// ==========================================
+
+
+// ### 1. CREATE (POST) - Add New Stock
+app.post("/api/stocks", async (req, res) => {
+    try {
+        const { restaurantId, stockName, quantity, perPiecePrice } = req.body;
+        
+        // Automatically calculate totalPrice on the backend for data integrity
+        const calculatedTotalPrice = parseNum(quantity) * parseNum(perPiecePrice);
+
+        const newStock = new Stock({
+            restaurantId,
+            stockName,
+            quantity,
+            perPiecePrice,
+            totalPrice: calculatedTotalPrice,
+        });
+
+        const savedStock = await newStock.save();
+        
+        res.status(201).json({
+            success: true,
+            message: "Stock created successfully",
+            data: savedStock,
+        });
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: error.message,
+        });
+    }
+});
+
+
+// ### 2. READ (GET) - Get All Stocks (with optional filter by restaurantId)
+app.get("/api/stocks", async (req, res) => {
+    try {
+        const { restaurantId } = req.query;
+        const filter = restaurantId ? { restaurantId } : {};
+        
+        const stocks = await Stock.find(filter);
+        
+        res.status(200).json({
+            success: true,
+            count: stocks.length,
+            data: stocks,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+});
+
+
+// ### 3. READ (GET) - Get Single Stock by ID
+app.get("/api/stocks/:id", async (req, res) => {
+    try {
+        const stock = await Stock.findById(req.params.id);
+        
+        if (!stock) {
+            return res.status(404).json({
+                success: false,
+                message: "Stock item not found",
+            });
+        }
+        
+        res.status(200).json({
+            success: true,
+            data: stock,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+});
+
+
+// ### 4. UPDATE (PUT) - Update Stock by ID
+app.put("/api/stocks/:id", async (req, res) => {
+    try {
+        let updateData = { ...req.body };
+
+        // If quantity or perPiecePrice is being updated, recalculate totalPrice automatically
+        if (updateData.quantity !== undefined || updateData.perPiecePrice !== undefined) {
+            const existingStock = await Stock.findById(req.params.id);
+            if (!existingStock) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Stock item not found",
+                });
+            }
+            const q = updateData.quantity !== undefined ? parseNum(updateData.quantity) : existingStock.quantity;
+            const p = updateData.perPiecePrice !== undefined ? parseNum(updateData.perPiecePrice) : existingStock.perPiecePrice;
+            updateData.totalPrice = q * p;
+        }
+
+        const updatedStock = await Stock.findByIdAndUpdate(
+            req.params.id,
+            updateData,
+            { new: true, runValidators: true } // `runValidators` ensures schema validations apply during updates
+        );
+        
+        if (!updatedStock) {
+            return res.status(404).json({
+                success: false,
+                message: "Stock item not found",
+            });
+        }
+        
+        res.status(200).json({
+            success: true,
+            message: "Stock updated successfully",
+            data: updatedStock,
+        });
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: error.message,
+        });
+    }
+});
+
+
+// ### 5. DELETE - Delete Stock by ID
+app.delete("/api/stocks/:id", async (req, res) => {
+    try {
+        const deletedStock = await Stock.findByIdAndDelete(req.params.id);
+        
+        if (!deletedStock) {
+            return res.status(404).json({
+                success: false,
+                message: "Stock item not found",
+            });
+        }
+        
+        res.status(200).json({
+            success: true,
+            message: "Stock deleted successfully",
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+});
+
+
+
 
 
 

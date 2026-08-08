@@ -286,12 +286,12 @@ const StockManagement: React.FC = () => {
               </div>
 
               <div className="sm:col-span-4 flex items-center justify-between pt-1">
-                <p className="text-xs text-gray-400">
+                {/* <p className="text-xs text-gray-400">
                   Total:{" "}
                   <span className="font-bold text-gray-700">
                     Rs. {(Number(quantity || 0) * Number(perPiecePrice || 0)).toFixed(2)}
                   </span>
-                </p>
+                </p> */}
                 <button
                   type="submit"
                   disabled={submitting}

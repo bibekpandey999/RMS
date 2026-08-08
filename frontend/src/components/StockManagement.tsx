@@ -352,7 +352,7 @@ const StockManagement: React.FC = () => {
                     <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Stock Name</th>
                     <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Quantity</th>
                     <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Per Piece</th>
-                    <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Total Price</th>
+                    {/* <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Total Price</th> */}
                     <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
                   </tr>
                 </thead>
@@ -416,14 +416,14 @@ const StockManagement: React.FC = () => {
                           )}
                         </td>
 
-                        <td className="px-5 py-3.5">
+                        {/* <td className="px-5 py-3.5">
                           <span className="font-mono font-bold text-gray-900">
                             Rs.{" "}
                             {isEditing
                               ? (Number(editQuantity || 0) * Number(editPerPiecePrice || 0)).toFixed(2)
                               : stock.totalPrice.toFixed(2)}
                           </span>
-                        </td>
+                        </td> */}
 
                         <td className="px-5 py-3.5">
                           <div className="flex items-center justify-end gap-1.5">
@@ -490,7 +490,7 @@ const StockManagement: React.FC = () => {
                     );
                   })}
                 </tbody>
-                <tfoot>
+                {/* <tfoot>
                   <tr className="bg-gray-50/70 border-t border-gray-100">
                     <td colSpan={3} className="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">
                       Grand Total
@@ -499,7 +499,7 @@ const StockManagement: React.FC = () => {
                       Rs. {grandTotal.toFixed(2)}
                     </td>
                   </tr>
-                </tfoot>
+                </tfoot> */}
               </table>
             </div>
           )}

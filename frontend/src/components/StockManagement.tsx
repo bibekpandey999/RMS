@@ -350,7 +350,7 @@ const StockManagement: React.FC = () => {
                 <thead>
                   <tr className="bg-gray-50 text-left border-b border-gray-100">
                     <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Stock Name</th>
-                    <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Quantity</th>
+                    <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Opening Stock</th>
                     <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Per Piece</th>
                     {/* <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Total Price</th> */}
                     <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>

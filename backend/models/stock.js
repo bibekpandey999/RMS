@@ -16,6 +16,10 @@ const stockSchema = new mongoose.Schema(
             required: [true, "Quantity is required"],
             min: [0, "Quantity cannot be negative"],
         },
+        closingStock: {
+            type: Number,
+            min: [0, "Quantity cannot be negative"],
+        },
         perPiecePrice: {
             type: Number,
             required: [true, "Per piece price is required"],

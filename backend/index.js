@@ -658,7 +658,7 @@ app.patch("/api/bills/:id", async (req, res) => {
 // ### 1. CREATE (POST) - Add New Stock
 app.post("/api/stocks", async (req, res) => {
     try {
-        const { restaurantId, stockName, quantity, perPiecePrice } = req.body;
+        const { restaurantId, stockName, quantity, closingStock, perPiecePrice } = req.body;
         
         // Automatically calculate totalPrice on the backend for data integrity
         const calculatedTotalPrice = parseNum(quantity) * parseNum(perPiecePrice);
@@ -667,6 +667,7 @@ app.post("/api/stocks", async (req, res) => {
             restaurantId,
             stockName,
             quantity,
+            closingStock, // Added closingStock here
             perPiecePrice,
             totalPrice: calculatedTotalPrice,
         });
@@ -734,7 +735,7 @@ app.get("/api/stocks/:id", async (req, res) => {
 });
 
 
-// ### 4. UPDATE (PUT) - Update Stock by ID
+// ### 4. UPDATE (PUT) - Update Stock by ID (Automatically handles closingStock via req.body)
 app.put("/api/stocks/:id", async (req, res) => {
     try {
         let updateData = { ...req.body };
@@ -803,7 +804,6 @@ app.delete("/api/stocks/:id", async (req, res) => {
         });
     }
 });
-
 
 
 

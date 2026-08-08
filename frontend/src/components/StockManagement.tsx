@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import {
   Plus, Pencil, Trash2, X, Check, Package, AlertTriangle,
-  Loader2, Search, TrendingUp, Boxes, Wallet, ShoppingBasket
+  Loader2, Search, TrendingUp, Boxes, ShoppingBasket
 } from "lucide-react";
 
 const API_BASE = "https://rms-0wk0.onrender.com/api/stocks";
@@ -12,6 +12,7 @@ interface StockItem {
   restaurantId: string;
   stockName: string;
   quantity: number;
+  closingStock?: number;
   perPiecePrice: number;
   totalPrice: number;
   createdAt?: string;
@@ -38,13 +39,13 @@ const StockManagement: React.FC = () => {
   const [editStockName, setEditStockName] = useState("");
   const [editQuantity, setEditQuantity] = useState("");
   const [editPerPiecePrice, setEditPerPiecePrice] = useState("");
+  const [editSaleQuantity, setEditSaleQuantity] = useState(""); // New: Sale input for edits
   const [savingEditId, setSavingEditId] = useState<string | null>(null);
 
   // delete confirm state
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Resolve the restaurant's id (and name, for display) from localStorage
   const getStoredPharmacyUser = (): { id: string; pharmacyName: string } | null => {
     try {
       const raw = localStorage.getItem("pharmacyUser");
@@ -63,8 +64,6 @@ const StockManagement: React.FC = () => {
     try {
       const res = await axios.get(`${API_BASE}?restaurantId=${encodeURIComponent(rid)}`);
       const allData: StockItem[] = res.data.data || [];
-      // Extra client-side safety: only show rows whose restaurantId matches
-      // the restaurant id currently stored in localStorage.
       const filtered = allData.filter((s) => s.restaurantId === rid);
       setStocks(filtered);
     } catch (err: any) {
@@ -136,6 +135,7 @@ const StockManagement: React.FC = () => {
     setEditStockName(stock.stockName);
     setEditQuantity(String(stock.quantity));
     setEditPerPiecePrice(String(stock.perPiecePrice));
+    setEditSaleQuantity(""); // Reset sale input when starting edit
   };
 
   const cancelEdit = () => {
@@ -143,6 +143,7 @@ const StockManagement: React.FC = () => {
     setEditStockName("");
     setEditQuantity("");
     setEditPerPiecePrice("");
+    setEditSaleQuantity("");
   };
 
   const handleUpdate = async (id: string) => {
@@ -152,11 +153,16 @@ const StockManagement: React.FC = () => {
       return;
     }
 
+    const openingQty = Number(editQuantity);
+    const saleQty = editSaleQuantity !== "" ? Number(editSaleQuantity) : 0;
+    const calculatedClosingStock = Math.max(0, openingQty - saleQty);
+
     setSavingEditId(id);
     try {
       await axios.put(`${API_BASE}/${id}`, {
         stockName: editStockName.trim(),
-        quantity: Number(editQuantity),
+        quantity: openingQty,
+        closingStock: calculatedClosingStock,
         perPiecePrice: Number(editPerPiecePrice),
       });
 
@@ -175,7 +181,6 @@ const StockManagement: React.FC = () => {
     return stocks.filter((s) => s.stockName.toLowerCase().includes(q));
   }, [stocks, searchQuery]);
 
-  const grandTotal = stocks.reduce((sum, s) => sum + s.totalPrice, 0);
   const totalItems = stocks.length;
   const totalUnits = stocks.reduce((sum, s) => sum + s.quantity, 0);
   const lowStockCount = stocks.filter((s) => s.quantity <= 20).length;
@@ -243,7 +248,6 @@ const StockManagement: React.FC = () => {
               {lowStockCount}
             </p>
           </div>
-
         </div>
 
         {/* Add form */}
@@ -286,12 +290,6 @@ const StockManagement: React.FC = () => {
               </div>
 
               <div className="sm:col-span-4 flex items-center justify-between pt-1">
-                {/* <p className="text-xs text-gray-400">
-                  Total:{" "}
-                  <span className="font-bold text-gray-700">
-                    Rs. {(Number(quantity || 0) * Number(perPiecePrice || 0)).toFixed(2)}
-                  </span>
-                </p> */}
                 <button
                   type="submit"
                   disabled={submitting}
@@ -351,8 +349,9 @@ const StockManagement: React.FC = () => {
                   <tr className="bg-gray-50 text-left border-b border-gray-100">
                     <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Stock Name</th>
                     <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Opening Stock</th>
+                    <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Sale Qty (Input)</th>
+                    <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Closing Stock</th>
                     <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Per Piece</th>
-                    {/* <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Total Price</th> */}
                     <th className="px-5 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
                   </tr>
                 </thead>
@@ -363,6 +362,11 @@ const StockManagement: React.FC = () => {
                     const isSaving = savingEditId === stock._id;
                     const isDeleting = deletingId === stock._id;
                     const isConfirmingDelete = deleteTargetId === stock._id;
+
+                    // Calculate live preview of closing stock during editing
+                    const liveOpening = isEditing ? Number(editQuantity || 0) : stock.quantity;
+                    const liveSale = isEditing ? Number(editSaleQuantity || 0) : 0;
+                    const liveClosing = isEditing ? Math.max(0, liveOpening - liveSale) : (stock.closingStock ?? stock.quantity);
 
                     return (
                       <tr key={stock._id} className="hover:bg-gray-50/60 transition-colors">
@@ -405,6 +409,25 @@ const StockManagement: React.FC = () => {
                           {isEditing ? (
                             <input
                               type="number"
+                              placeholder="0"
+                              value={editSaleQuantity}
+                              onChange={(e) => setEditSaleQuantity(e.target.value)}
+                              min="0"
+                              className="w-24 rounded-md border border-teal-300 bg-teal-50/30 px-2.5 py-1.5 text-sm outline-none focus:border-teal-600 focus:ring-1 focus:ring-teal-600"
+                            />
+                          ) : (
+                            <span className="font-mono text-gray-400">-</span>
+                          )}
+                        </td>
+
+                        <td className="px-5 py-3.5">
+                          <span className="font-mono font-bold text-teal-700">{liveClosing}</span>
+                        </td>
+
+                        <td className="px-5 py-3.5">
+                          {isEditing ? (
+                            <input
+                              type="number"
                               value={editPerPiecePrice}
                               onChange={(e) => setEditPerPiecePrice(e.target.value)}
                               min="0"
@@ -415,15 +438,6 @@ const StockManagement: React.FC = () => {
                             <span className="font-mono text-gray-700">Rs. {stock.perPiecePrice}</span>
                           )}
                         </td>
-
-                        {/* <td className="px-5 py-3.5">
-                          <span className="font-mono font-bold text-gray-900">
-                            Rs.{" "}
-                            {isEditing
-                              ? (Number(editQuantity || 0) * Number(editPerPiecePrice || 0)).toFixed(2)
-                              : stock.totalPrice.toFixed(2)}
-                          </span>
-                        </td> */}
 
                         <td className="px-5 py-3.5">
                           <div className="flex items-center justify-end gap-1.5">
@@ -490,16 +504,6 @@ const StockManagement: React.FC = () => {
                     );
                   })}
                 </tbody>
-                {/* <tfoot>
-                  <tr className="bg-gray-50/70 border-t border-gray-100">
-                    <td colSpan={3} className="px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                      Grand Total
-                    </td>
-                    <td colSpan={2} className="px-5 py-3 text-sm font-extrabold text-teal-700 font-mono">
-                      Rs. {grandTotal.toFixed(2)}
-                    </td>
-                  </tr>
-                </tfoot> */}
               </table>
             </div>
           )}

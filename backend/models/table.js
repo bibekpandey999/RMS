@@ -10,7 +10,7 @@ const tableSchema = mongoose.Schema({
         required: true,
     },
     capacity: {
-        type: Number,
+        type: Number, 
         required: true,
         min: 1,
         default: 2,

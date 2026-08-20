@@ -42,55 +42,55 @@ The system is designed around role-based accounts, each with its own view and pe
 - React + TypeScript
 - Vite
 
-## 📁 Project Structure
+📁 Project Structure
+
+Rest.../
 ├── backend/
-│ ├── models/
-│ │ ├── bill.js
-│ │ ├── createOrder.js
-│ │ ├── login.js
-│ │ ├── loginStaff.js
-│ │ ├── menu.js
-│ │ ├── stock.js
-│ │ └── table.js
-│ ├── .env.example
-│ ├── connectDb.js
-│ ├── index.js
-│ └── package.json
+│   ├── models/
+│   │   ├── bill.js
+│   │   ├── createOrder.js
+│   │   ├── login.js
+│   │   ├── loginStaff.js
+│   │   ├── menu.js
+│   │   ├── stock.js
+│   │   └── table.js
+│   ├── .env.example
+│   ├── connectDb.js
+│   ├── index.js
+│   └── package.json
 │
 └── frontend/
-├── assets/
-├── src/
-│ ├── components/
-│ │ ├── AdminDashboard.tsx
-│ │ ├── BillingManager....tsx
-│ │ ├── CreateBill.tsx
-│ │ ├── CreateOrder.tsx
-│ │ ├── DailyOrderItem....tsx
-│ │ ├── Dashboard.tsx
-│ │ ├── KitchenDisplay....tsx
-│ │ ├── LoginScreen.tsx
-│ │ ├── MenuManager....tsx
-│ │ ├── Orders.tsx
-│ │ ├── Setting.tsx
-│ │ ├── StaffLoginpage.tsx
-│ │ ├── StaffManager.tsx
-│ │ ├── StockManagem....tsx
-│ │ ├── Table.tsx
-│ │ └── UnPaidBill.tsx
-│ ├── App.tsx
-│ ├── db.ts
-│ ├── index.css
-│ ├── main.tsx
-│ ├── translations.ts
-│ └── types.ts
-├── .env
-├── .env.example
-├── index.html
-├── package.json
-├── tsconfig.json
-└── vite.config.ts
-
-
+    ├── assets/
+    ├── src/
+    │   ├── components/
+    │   │   ├── AdminDashboard.tsx
+    │   │   ├── BillingManager....tsx
+    │   │   ├── CreateBill.tsx
+    │   │   ├── CreateOrder.tsx
+    │   │   ├── DailyOrderItem....tsx
+    │   │   ├── Dashboard.tsx
+    │   │   ├── KitchenDisplay....tsx
+    │   │   ├── LoginScreen.tsx
+    │   │   ├── MenuManager....tsx
+    │   │   ├── Orders.tsx
+    │   │   ├── Setting.tsx
+    │   │   ├── StaffLoginpage.tsx
+    │   │   ├── StaffManager.tsx
+    │   │   ├── StockManagem....tsx
+    │   │   ├── Table.tsx
+    │   │   └── UnPaidBill.tsx
+    │   ├── App.tsx
+    │   ├── db.ts
+    │   ├── index.css
+    │   ├── main.tsx
+    │   ├── translations.ts
+    │   └── types.ts
+    ├── .env
+    ├── .env.example
+    ├── index.html
+    ├── package.json
+    ├── tsconfig.json
+    └── vite.config.ts
 
 ## ⚙️ Setup Instructions
 

@@ -15,7 +15,7 @@ const mongoose = require('mongoose');
 // ... all your require statements ...
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000;
 
 app.set('trust proxy', 1);
 
@@ -26,11 +26,18 @@ const allowedOrigins = [
 ];
 // CORS and JSON parsing set up immediately, not gated on DB connection
 app.use(cors({
-    origin: true,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    optionsSuccessStatus: 200
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 200
 }));
 
 app.use(express.json());
@@ -1142,12 +1149,13 @@ app.delete("/api/staff/:id", async (req, res) => {
 
 
 // Start DB connection before starting server
-conectDb().then(() => {
-  app.listen(Number(PORT), "0.0.0.0", () => {
-    console.log(`Pharmacy full-stack server running on port ${PORT}`);
-  });
-}).catch((err) => {
-  console.error("❌ Critical System Halt: Server could not start because Database connection failed.");
+app.listen(Number(PORT), "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+// Connect to the database separately in the background
+conectDb().catch((err) => {
+  console.error("❌ Database connection failed:", err);
 });
 
 

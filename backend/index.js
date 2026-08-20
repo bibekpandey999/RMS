@@ -22,7 +22,8 @@ app.set('trust proxy', 1);
 
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://rms-pa7b9fs27-ramitnpns-projects.vercel.app"
+  "https://rms-pa7b9fs27-ramitnpns-projects.vercel.app",
+  "https://rms-b31gvxgbv-ramitnpns-projects.vercel.app"
 ];
 // CORS and JSON parsing set up immediately, not gated on DB connection
 app.use(cors({
@@ -42,36 +43,27 @@ app.use(cors({
 
 app.use(express.json());
 
-conectDb();
 
-mongoose.connection.once('open', () => {
-    console.log("MongoDB connection established for sessions.");
 
-    app.use(session({
-        secret: process.env.SESSION_SECRET || 'your_secret',
-        resave: false,
-        saveUninitialized: false,
-        store: MongoStore.create({
-            client: mongoose.connection.getClient()
-        }),
-        cookie: {
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-            httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000
-        }
-    }));
+   app.use(session({
+  secret: process.env.SESSION_SECRET || 'your_secret',
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI
+  }),
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000
+  }
+}));
 
-    // Register your routes AFTER session middleware is attached
-    // app.use('/api/auth', authRoutes);
-    // app.use('/api/patients', patientRoutes);
-    // ...etc
 
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-});
 
 mongoose.connection.on('error', (err) => {
-    console.error("MongoDB connection error:", err);
+  console.error("MongoDB connection error:", err);
 });
 
 // Global Helper functions

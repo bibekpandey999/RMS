@@ -15,55 +15,56 @@ const mongoose = require('mongoose');
 // ... all your require statements ...
 
 const app = express();
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 5000;
 
 app.set('trust proxy', 1);
 
 
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://rms-pa7b9fs27-ramitnpns-projects.vercel.app",
-  "https://rms-b31gvxgbv-ramitnpns-projects.vercel.app"
+  "https://rms-pa7b9fs27-ramitnpns-projects.vercel.app"
 ];
 // CORS and JSON parsing set up immediately, not gated on DB connection
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  optionsSuccessStatus: 200
+    origin: true,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    optionsSuccessStatus: 200
 }));
 
 app.use(express.json());
 
+conectDb();
 
+mongoose.connection.once('open', () => {
+    console.log("MongoDB connection established for sessions.");
 
-   app.use(session({
-  secret: process.env.SESSION_SECRET || 'your_secret',
-  resave: false,
-  saveUninitialized: false,
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGO_URI
-  }),
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000
-  }
-}));
+    app.use(session({
+        secret: process.env.SESSION_SECRET || 'your_secret',
+        resave: false,
+        saveUninitialized: false,
+        store: MongoStore.create({
+            client: mongoose.connection.getClient()
+        }),
+        cookie: {
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            httpOnly: true,
+            maxAge: 24 * 60 * 60 * 1000
+        }
+    }));
 
+    // Register your routes AFTER session middleware is attached
+    // app.use('/api/auth', authRoutes);
+    // app.use('/api/patients', patientRoutes);
+    // ...etc
 
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+});
 
 mongoose.connection.on('error', (err) => {
-  console.error("MongoDB connection error:", err);
+    console.error("MongoDB connection error:", err);
 });
 
 // Global Helper functions
@@ -1141,13 +1142,12 @@ app.delete("/api/staff/:id", async (req, res) => {
 
 
 // Start DB connection before starting server
-app.listen(Number(PORT), "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
-// Connect to the database separately in the background
-conectDb().catch((err) => {
-  console.error("❌ Database connection failed:", err);
+conectDb().then(() => {
+  app.listen(Number(PORT), "0.0.0.0", () => {
+    console.log(`Pharmacy full-stack server running on port ${PORT}`);
+  });
+}).catch((err) => {
+  console.error("❌ Critical System Halt: Server could not start because Database connection failed.");
 });
 
 

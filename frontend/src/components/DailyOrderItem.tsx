@@ -36,25 +36,25 @@ const TotalOrder: React.FC<TotalOrderProps> = ({ restaurantId }) => {
   const [showBill, setShowBill] = useState(false);
 
   // Resolve the current restaurant's id and _id from localStorage (pharmacyUser)
-const { currentRestaurantId, currentRestaurantIdAlt } = useMemo(() => {
-  try {
-    const raw = localStorage.getItem("pharmacyUser");
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed?.id || parsed?._id) {
-        return {
-          currentRestaurantId: parsed?.id ?? null,
-          currentRestaurantIdAlt: parsed?._id ?? null,
-        };
+  const { currentRestaurantId, currentRestaurantIdAlt } = useMemo(() => {
+    try {
+      const raw = localStorage.getItem("pharmacyUser");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed?.id || parsed?._id) {
+          return {
+            currentRestaurantId: parsed?.id ?? null,
+            currentRestaurantIdAlt: parsed?._id ?? null,
+          };
+        }
       }
+    } catch (e) {
+      console.error("Failed to parse pharmacyUser from localStorage:", e);
     }
-  } catch (e) {
-    console.error("Failed to parse pharmacyUser from localStorage:", e);
-  }
-  // fallback to prop only if localStorage didn't give us anything
-  if (restaurantId) return { currentRestaurantId: restaurantId, currentRestaurantIdAlt: null };
-  return { currentRestaurantId: null, currentRestaurantIdAlt: null };
-}, [restaurantId]);
+    // fallback to prop only if localStorage didn't give us anything
+    if (restaurantId) return { currentRestaurantId: restaurantId, currentRestaurantIdAlt: null };
+    return { currentRestaurantId: null, currentRestaurantIdAlt: null };
+  }, [restaurantId]);
 
   useEffect(() => {
     fetchOrders();
@@ -101,14 +101,24 @@ const { currentRestaurantId, currentRestaurantIdAlt } = useMemo(() => {
     });
   }, [orders, currentRestaurantId, currentRestaurantIdAlt]);
 
-  const completedOrders = useMemo(
-  () =>
-    restaurantOrders.filter((o) => {
-      const paymentStatus = o.paymentStatus?.toLowerCase().trim();
+  // Only PAID orders count as completed sales. Pending / unpaid orders are excluded.
+  const completedOrders = useMemo(() => {
+    const filtered = restaurantOrders.filter((o) => {
+      const paymentStatus = String(o.paymentStatus ?? "").toLowerCase().trim();
       return paymentStatus === "paid";
-    }),
-  [restaurantOrders]
-);
+    });
+
+    // DEBUG: remove these two console.logs once you've confirmed the fix works
+    console.log(
+      "All restaurantOrders payment statuses:",
+      restaurantOrders.map((o) => ({ id: o._id, paymentStatus: o.paymentStatus }))
+    );
+    console.log(
+      `completedOrders: ${filtered.length} of ${restaurantOrders.length} restaurantOrders passed the "paid" filter`
+    );
+
+    return filtered;
+  }, [restaurantOrders]);
 
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
@@ -180,7 +190,7 @@ const { currentRestaurantId, currentRestaurantIdAlt } = useMemo(() => {
 
   const totalOrdersCount = ordersForSelectedDate.length;
 
-const handlePrint = () => {
+  const handlePrint = () => {
     const printContent = document.getElementById("bill-print-area");
     if (!printContent) return;
 
@@ -229,6 +239,7 @@ const handlePrint = () => {
       printWindow.close();
     }, 250);
   };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-10">
